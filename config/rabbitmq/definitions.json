@@ -1,0 +1,117 @@
+{
+    "product_name": "RabbitMQ",
+    "users": [
+        {
+            "name": "admin",
+            "password_hash": "cmSkrfGndlEqlSc3DER7Iemnru4dWP0rg9Bo/9cRocYelJwG",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": [
+                "administrator"
+            ],
+            "limits": {}
+        },
+        {
+            "name": "monitor",
+            "password_hash": "k6++K2lJit4NaUEt5Q49rT08ZfbkECqB6ffCIWwJSDzuVWLf",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": [
+                "monitoring"
+            ],
+            "limits": {
+                "max-channels": 2,
+                "max-connections": 4
+            }
+        }
+    ],
+    "vhosts": [
+        {
+            "name": "/"
+        }
+    ],
+    "permissions": [
+        {
+            "user": "admin",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        },
+        {
+            "user": "monitor",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "topic_permissions": [
+        {
+            "user": "monitor",
+            "vhost": "/",
+            "exchange": "",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "parameters": [
+        {
+            "value": {
+                "max-queues": 1000,
+                "max-connections": 50
+            },
+            "vhost": "/",
+            "component": "vhost-limits",
+            "name": "limits"
+        }
+    ],
+    "global_parameters": [
+        {
+            "name": "internal_cluster_id",
+            "value": "rabbitmq-cluster-id-eo6U_6ur_SW3Cbzjd4nkAw"
+        }
+    ],
+    "policies": [
+        {
+            "vhost": "/",
+            "name": "ha",
+            "pattern": "",
+            "apply-to": "all",
+            "definition": {
+                "ha-mode": "all",
+                "ha-sync-batch-size": 5,
+                "ha-sync-mode": "automatic"
+            },
+            "priority": 0
+        }
+    ],
+    "queues": [
+        {
+            "name": "q.user.created",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": true,
+            "arguments": {}
+        }
+    ],
+    "exchanges": [
+        {
+            "name": "e.user.created",
+            "vhost": "/",
+            "type": "topic",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        }
+    ],
+    "bindings": [
+        {
+            "source": "e.user.created",
+            "vhost": "/",
+            "destination": "q.user.created",
+            "destination_type": "queue",
+            "routing_key": "user.created",
+            "arguments": {}
+        }
+    ]
+}

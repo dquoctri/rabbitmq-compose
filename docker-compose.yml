@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+  rabbitmq0:
+    container_name: 'rabbitmq0_container'
+    hostname: master
+    image: rabbitmq:${RABBITMQ_VERSION:-management}
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cookie-value}
+      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
+    volumes:
+      - rabbitmq-master:/var/lib/rabbitmq
+      - ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ./config/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+    ports:
+      # # The standard AMQP protocol port
+      # - ${RABBITMQ_AMQP_PORT:-5672}:5672
+      # HTTP management UI
+      - ${RABBITMQ_UI_PORT:-15672}:15672
+    networks:
+      - env_net
+    restart: always
+
+  rabbitmq1:
+    container_name: 'rabbitmq1_container'
+    image: rabbitmq:${RABBITMQ_VERSION:-management}
+    hostname: slave1
+    depends_on:
+      - rabbitmq0
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cookie-value}
+      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
+    volumes:
+      - rabbitmq-slave1:/var/lib/rabbitmq
+      - ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ./config/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+    networks:
+      - env_net
+    restart: always
+  
+  rabbitmq2:
+    container_name: 'rabbitmq2_container'
+    image: rabbitmq:${RABBITMQ_VERSION:-management}
+    hostname: slave2
+    depends_on:
+      - rabbitmq0
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cookie-value}
+      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
+    volumes:
+      - rabbitmq-slave2:/var/lib/rabbitmq
+      - ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ./config/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+    networks:
+      - env_net
+    restart: always
+
+  haproxy:
+    container_name: 'haproxy_container'
+    image: haproxy:${HAPROXY_VERSION:-latest}
+    volumes:
+      - ./config/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - rabbitmq0
+      - rabbitmq1
+      - rabbitmq2
+    ports:
+      # The standard AMQP protocol port
+      - ${RABBITMQ_AMQP_PORT:-5672}:5672
+      # HAProxy dashboard
+      - ${HAPROXY_PORT:-1936}:1936 
+    networks:
+      - env_net
+  
+networks:
+  env_net:
+    external: true
+    driver: bridge
+
+volumes:
+  rabbitmq-master:
+  rabbitmq-slave1:
+  rabbitmq-slave2:
+  
