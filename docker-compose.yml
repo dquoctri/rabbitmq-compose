@@ -10,8 +10,8 @@ services:
       RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
     volumes:
       - rabbitmq-master:/var/lib/rabbitmq
-      - ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
-      - ./config/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
     ports:
       # # The standard AMQP protocol port
       # - ${RABBITMQ_AMQP_PORT:-5672}:5672
@@ -32,8 +32,8 @@ services:
       RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
     volumes:
       - rabbitmq-slave1:/var/lib/rabbitmq
-      - ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
-      - ./config/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
     networks:
       - env_net
     restart: always
@@ -49,8 +49,8 @@ services:
       RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
     volumes:
       - rabbitmq-slave2:/var/lib/rabbitmq
-      - ./config/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
-      - ./config/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
     networks:
       - env_net
     restart: always
@@ -59,7 +59,7 @@ services:
     container_name: 'haproxy_container'
     image: haproxy:${HAPROXY_VERSION:-latest}
     volumes:
-      - ./config/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ${HAPROXY_CONFIG_DIR:-./.config/haproxy}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     depends_on:
       - rabbitmq0
       - rabbitmq1
