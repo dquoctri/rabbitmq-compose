@@ -10,7 +10,7 @@ services:
       RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
     volumes:
       - rabbitmq-master:/var/lib/rabbitmq
-      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
     ports:
       # # The standard AMQP protocol port
@@ -32,7 +32,7 @@ services:
       RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
     volumes:
       - rabbitmq-slave1:/var/lib/rabbitmq
-      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
     networks:
       - env_net
@@ -49,7 +49,7 @@ services:
       RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
     volumes:
       - rabbitmq-slave2:/var/lib/rabbitmq
-      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
     networks:
       - env_net
