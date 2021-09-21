@@ -4,71 +4,77 @@ services:
   rabbitmq0:
     container_name: 'rabbitmq0_container'
     hostname: master
-    image: rabbitmq:${RABBITMQ_VERSION:-management}
+    image: ${RABBITMQ_IMAGE}
     environment:
-      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cookie-value}
-      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
+      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME}
     volumes:
       - rabbitmq-master:/var/lib/rabbitmq
-      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
+      - ${RABBITMQ_CONFIG_DIR}/erlang-cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ${RABBITMQ_CONFIG_DIR}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ${RABBITMQ_CONFIG_DIR}/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ${RABBITMQ_CONFIG_DIR}/definitions.json:/etc/rabbitmq/definitions.json
+    command: bash -c "chmod 600 /var/lib/rabbitmq/.erlang.cookie && rabbitmq-server"
     ports:
       # # The standard AMQP protocol port
-      # - ${RABBITMQ_AMQP_PORT:-5672}:5672
+      # - ${RABBITMQ_AMQP_PORT}:5672
       # HTTP management UI
-      - ${RABBITMQ_UI_PORT:-15672}:15672
+      - ${RABBITMQ_UI_PORT}:15672
     networks:
       - env_net
     restart: always
 
   rabbitmq1:
     container_name: 'rabbitmq1_container'
-    image: rabbitmq:${RABBITMQ_VERSION:-management}
+    image: ${RABBITMQ_IMAGE}
     hostname: slave1
     depends_on:
       - rabbitmq0
     environment:
-      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cookie-value}
-      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
+      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME}
     volumes:
       - rabbitmq-slave1:/var/lib/rabbitmq
-      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
+      - ${RABBITMQ_CONFIG_DIR}/erlang-cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ${RABBITMQ_CONFIG_DIR}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ${RABBITMQ_CONFIG_DIR}/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ${RABBITMQ_CONFIG_DIR}/definitions.json:/etc/rabbitmq/definitions.json
+    command: bash -c "chmod 600 /var/lib/rabbitmq/.erlang.cookie && rabbitmq-server"
     networks:
       - env_net
     restart: always
   
   rabbitmq2:
     container_name: 'rabbitmq2_container'
-    image: rabbitmq:${RABBITMQ_VERSION:-management}
+    image: ${RABBITMQ_IMAGE}
     hostname: slave2
     depends_on:
       - rabbitmq0
     environment:
-      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-cookie-value}
-      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-localhost}
+      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME}
     volumes:
       - rabbitmq-slave2:/var/lib/rabbitmq
-      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
+      - ${RABBITMQ_CONFIG_DIR}/erlang-cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ${RABBITMQ_CONFIG_DIR}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ${RABBITMQ_CONFIG_DIR}/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ${RABBITMQ_CONFIG_DIR}/definitions.json:/etc/rabbitmq/definitions.json
+    command: bash -c "chmod 600 /var/lib/rabbitmq/.erlang.cookie && rabbitmq-server"
     networks:
       - env_net
     restart: always
 
   haproxy:
     container_name: 'haproxy_container'
-    image: haproxy:${HAPROXY_VERSION:-latest}
+    image: ${HAPROXY_IMAGE}
     volumes:
-      - ${HAPROXY_CONFIG_DIR:-./.config/haproxy}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ${HAPROXY_CONFIG_DIR}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     depends_on:
       - rabbitmq0
       - rabbitmq1
       - rabbitmq2
     ports:
       # The standard AMQP protocol port
-      - ${RABBITMQ_AMQP_PORT:-5672}:5672
+      - ${RABBITMQ_AMQP_PORT}:5672
       # HAProxy dashboard
-      - ${HAPROXY_PORT:-1936}:1936 
+      - ${HAPROXY_PORT}:1936 
     networks:
       - env_net
   

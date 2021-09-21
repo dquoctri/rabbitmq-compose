@@ -46,6 +46,13 @@
     ],
     "topic_permissions": [
         {
+            "user": "admin",
+            "vhost": "/",
+            "exchange": "",
+            "write": ".*",
+            "read": ".*"
+        },
+        {
             "user": "monitor",
             "vhost": "/",
             "exchange": "",
