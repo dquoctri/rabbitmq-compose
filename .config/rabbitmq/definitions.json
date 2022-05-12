@@ -72,6 +72,7 @@
         }
     ],
     "global_parameters": [
+        { "name": "cluster_name", "value": "domain@master" },
         {
             "name": "internal_cluster_id",
             "value": "rabbitmq-cluster-id-eo6U_6ur_SW3Cbzjd4nkAw"

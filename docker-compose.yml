@@ -4,15 +4,15 @@ services:
   rabbitmq0:
     container_name: 'rabbitmq0_container'
     hostname: master
-    image: ${RABBITMQ_IMAGE}
+    image: ${RABBITMQ_IMAGE:-rabbitmq:latest}
     environment:
-      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME}
+      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-domain}
     volumes:
       - rabbitmq-master:/var/lib/rabbitmq
-      - ${RABBITMQ_CONFIG_DIR}/erlang-cookie:/var/lib/rabbitmq/.erlang.cookie
-      - ${RABBITMQ_CONFIG_DIR}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ${RABBITMQ_CONFIG_DIR}/enabled_plugins:/etc/rabbitmq/enabled_plugins
-      - ${RABBITMQ_CONFIG_DIR}/definitions.json:/etc/rabbitmq/definitions.json
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/erlang-cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
     command: bash -c "chmod 600 /var/lib/rabbitmq/.erlang.cookie && rabbitmq-server"
     ports:
       # # The standard AMQP protocol port
@@ -25,37 +25,37 @@ services:
 
   rabbitmq1:
     container_name: 'rabbitmq1_container'
-    image: ${RABBITMQ_IMAGE}
+    image: ${RABBITMQ_IMAGE:-rabbitmq:latest}
     hostname: slave1
     depends_on:
       - rabbitmq0
     environment:
-      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME}
+      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-domain}
     volumes:
       - rabbitmq-slave1:/var/lib/rabbitmq
-      - ${RABBITMQ_CONFIG_DIR}/erlang-cookie:/var/lib/rabbitmq/.erlang.cookie
-      - ${RABBITMQ_CONFIG_DIR}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ${RABBITMQ_CONFIG_DIR}/enabled_plugins:/etc/rabbitmq/enabled_plugins
-      - ${RABBITMQ_CONFIG_DIR}/definitions.json:/etc/rabbitmq/definitions.json
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/erlang-cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
     command: bash -c "chmod 600 /var/lib/rabbitmq/.erlang.cookie && rabbitmq-server"
     networks:
       - env_net
     restart: always
-  
+
   rabbitmq2:
     container_name: 'rabbitmq2_container'
-    image: ${RABBITMQ_IMAGE}
+    image: ${RABBITMQ_IMAGE:-rabbitmq:latest}
     hostname: slave2
     depends_on:
       - rabbitmq0
     environment:
-      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME}
+      RABBITMQ_NODENAME: ${RABBITMQ_NODENAME:-domain}
     volumes:
       - rabbitmq-slave2:/var/lib/rabbitmq
-      - ${RABBITMQ_CONFIG_DIR}/erlang-cookie:/var/lib/rabbitmq/.erlang.cookie
-      - ${RABBITMQ_CONFIG_DIR}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ${RABBITMQ_CONFIG_DIR}/enabled_plugins:/etc/rabbitmq/enabled_plugins
-      - ${RABBITMQ_CONFIG_DIR}/definitions.json:/etc/rabbitmq/definitions.json
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/erlang-cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ${RABBITMQ_CONFIG_DIR:-./.config/rabbitmq}/definitions.json:/etc/rabbitmq/definitions.json
     command: bash -c "chmod 600 /var/lib/rabbitmq/.erlang.cookie && rabbitmq-server"
     networks:
       - env_net
@@ -65,7 +65,7 @@ services:
     container_name: 'haproxy_container'
     image: ${HAPROXY_IMAGE}
     volumes:
-      - ${HAPROXY_CONFIG_DIR}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ${HAPROXY_CONFIG_DIR:-./.config/haproxy}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     depends_on:
       - rabbitmq0
       - rabbitmq1
@@ -74,10 +74,11 @@ services:
       # The standard AMQP protocol port
       - ${RABBITMQ_AMQP_PORT}:5672
       # HAProxy dashboard
-      - ${HAPROXY_PORT}:1936 
+      - ${HAPROXY_PORT}:1936
     networks:
       - env_net
-  
+    restart: always
+
 networks:
   env_net:
     external: true
@@ -87,4 +88,3 @@ volumes:
   rabbitmq-master:
   rabbitmq-slave1:
   rabbitmq-slave2:
-  
